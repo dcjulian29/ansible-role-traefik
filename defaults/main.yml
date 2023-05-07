@@ -1,0 +1,41 @@
+---
+traefik_acme: false
+traefik_acme_email: ""
+traefik_acme_server: ""
+traefik_acme_domains:
+  - main: "{{ traefik_fqdn }}"
+traefik_acme_challenge: http  # possible values: dns, tls, http
+traefik_acme_dns_provider: ""
+traefik_acme_dns_resolvers:
+  - "8.8.8.8:53"
+  - "1.1.1.1:53"
+traefik_acme_dns_disablepropagationcheck: false
+traefik_check_new_version: true
+traefik_custom_config: []
+# - name: remote1
+#   conf:
+#     http:
+#       routers:
+#         ...
+traefik_dashboard: true
+traefik_dashboard_middlewares: auth-basic@file
+traefik_dashboard_user: admin
+traefik_dashboard_pass: $apr1$MR6nE9XC$lC2fnUmGLmsZDGqNlcdxU0    # 'admin'
+traefik_data: /opt/traefik
+traefik_env: { }
+traefik_fqdn: "{{ ansible_fqdn }}"
+traefik_group: traefik
+traefik_https: false
+traefik_https_redirect: false
+traefik_image: traefik
+traefik_name: traefik
+traefik_docker_default_expose: false
+traefik_docker_network: bridge
+traefik_log_access: true
+traefik_log_level: INFO
+traefik_log_format: common    # or json
+traefik_port: 80
+traefik_port_ssl: 443
+traefik_send_usage: false
+traefik_user: traefik
+traefik_version: "2.10.1"

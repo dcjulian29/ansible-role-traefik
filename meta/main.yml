@@ -1,0 +1,26 @@
+---
+dependencies:
+  - role: dcjulian29.docker
+  - role: geerlingguy.pip
+galaxy_info:
+  author: Julian Easterling
+  description: Ansible role to install Traefik, a modern reverse proxy and load balancer.
+  galaxy_tags:
+    - traefik
+    - dcjulian29
+    - proxy
+  license: Apache-2.0
+  min_ansible_version: 2.14.1
+  namespace: dcjulian29
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - jammy
+    - name: EL
+      versions:
+        - "9"
+        - "8"
+  role_name: traefik

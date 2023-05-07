@@ -1,0 +1,12 @@
+---
+- name: Remove traefik
+  ansible.builtin.command: "docker rm {{ traefik_name }}"
+  register: results
+  failed_when: >-
+    results is failed and
+    "No such container" not in results.stderr | default(false)
+  changed_when: >-
+    'No such container' not in results.stderr | default(false)
+
+- name: Restart traefik
+  ansible.builtin.command: "docker restart {{ traefik_name }}"

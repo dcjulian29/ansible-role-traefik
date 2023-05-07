@@ -1,0 +1,56 @@
+---
+http:
+  routers:
+    traefik:
+      entrypoints: [{{ traefik_https | ternary('websecure', 'web') }}]
+      rule: {% if traefik_fqdn | length > 0 %}"Host(`{{ traefik_fqdn }}`)"
+            {% else %}"PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+            {% endif %}
+      service: api@internal
+      middlewares: {{ traefik_dashboard_middlewares }}
+
+  middlewares:
+    default-compress:
+      compress: {}
+    default-security:
+      chain:
+        middlewares:
+          - rate-limit
+          - secure-headers
+    auth-basic:
+      basicAuth:
+        headerField: X-WebAuth-User
+        users:
+          - "{{ traefik_dashboard_user }}:{{ traefik_dashboard_pass }}"
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+    secure-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+          - PUT
+        accessControlMaxAge: 100
+        addVaryHeader: true
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "origin-when-cross-origin,strict-origin-when-cross-origin"
+        contentSecurityPolicy: "frame-ancestors 'self';"
+        customResponseHeaders:
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,noindex"
+          server: ""
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
