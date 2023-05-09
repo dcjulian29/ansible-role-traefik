@@ -14,9 +14,7 @@ traefik_check_new_version: true
 traefik_custom_config: []
 # - name: remote1
 #   conf:
-#     http:
-#       routers:
-#         ...
+#     ... https://doc.traefik.io/traefik/reference/dynamic-configuration/file
 traefik_dashboard: true
 traefik_dashboard_middlewares: auth-basic@file
 traefik_dashboard_user: admin
