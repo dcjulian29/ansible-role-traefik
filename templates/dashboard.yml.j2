@@ -21,7 +21,7 @@ http:
       basicAuth:
         headerField: X-WebAuth-User
         users:
-          - "{{ traefik_dashboard_user }}:{{ traefik_dashboard_pass }}"
+          - "{{ traefik_dashboard_user }}:{{ traefik_dashboard_pass | password_hash('bcrypt', traefik_salt) }}"
     rate-limit:
       rateLimit:
         average: 100
