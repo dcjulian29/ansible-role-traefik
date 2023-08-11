@@ -10,19 +10,88 @@ traefik_acme_dns_resolvers:
   - "8.8.8.8:53"
   - "1.1.1.1:53"
 traefik_acme_dns_disablepropagationcheck: false
+traefik_api_insecure: false
 traefik_check_new_version: true
 traefik_custom_config: []
 # - name: remote1
 #   conf:
 #     ... https://doc.traefik.io/traefik/reference/dynamic-configuration/file
+traefik_default_config:
+  - name: default-middleware
+    conf:
+      http:
+        middlewares:
+          default:
+            chain:
+              middlewares:
+                - default-compress@file
+                - default-security-headers@file
+
+          # Enables the GZIP compression (https://docs.traefik.io/middlewares/compress/)
+          # Use with traefik.http.routers.<name>.middlewares: "default-compress@file"
+          default-compress:
+            compress: { }
+
+          # Add automatically some security headers
+          # Use with traefik.http.routers.<name>.middlewares: "default-security-headers@file"
+          default-security-headers:
+            headers:
+              browserXssFilter: "{{ traefik_headers_browser_xss_filter }}"
+              contentTypeNosniff: "{{ traefik_headers_content_type_nosniff }}"
+              forceSTSHeader: "{{ traefik_headers_sts_force }}"
+              frameDeny: "{{ traefik_headers_frame_deny }}"
+              referrerPolicy: "{{ traefik_headers_referrer_policy }}"
+              sslRedirect: "{{ traefik_headers_ssl_redirect }}"
+              stsIncludeSubdomains: "{{ traefik_headers_sts_subdomains }}"
+              stsPreload: "{{ traefik_headers_sts_preload }}"
+              stsSeconds: "{{ traefik_headers_sts_seconds }}"
+  - name: tls-options
+    conf:
+      tls:
+        options:
+          default:
+            minVersion: VersionTLS12
+            cipherSuites:
+              # Recommended ciphers for TLSv1.2
+              - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+              - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+              - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+              # Recommended ciphers for TLSv1.3
+              - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+              - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+              - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+
+          # Use with traefik.http.routers.<name>.tls.options=strict@file"
+          strict:
+            minVersion: VersionTLS13
+            cipherSuites:
+              - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+              - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+            sniStrict: true
 traefik_dashboard: true
-traefik_dashboard_middlewares: auth-basic@file
-traefik_dashboard_user: admin
+traefik_dashboard_middlewares:
+  - dashboard-auth-basic@file
+  - dashboard-rate-limit@file
+  - dashboard-secure-headers@file
+traefik_dashboard_fqdn: "{{ ansible_fqdn }}"
 traefik_dashboard_pass: admin
+traefik_dashboard_user: admin
 traefik_data: /opt/traefik
 traefik_env: { }
-traefik_fqdn: "{{ ansible_fqdn }}"
 traefik_group: traefik
+traefik_headers_browser_xss_filter: true    # X-XSS-Protection=1; mode=block
+traefik_headers_content_type_nosniff: true    # X-Content-Type-Options=nosniff
+traefik_headers_frame_deny: true    # X-Frame-Options=deny
+traefik_headers_referrer_policy: "strict-origin-when-cross-origin"
+traefik_headers_ssl_redirect: false    # Allow only https requests
+# Add the Strict-Transport-Security header even when the connection is HTTP
+traefik_headers_sts_force: false
+# Add includeSubdomains to the Strict-Transport-Security header
+traefik_headers_sts_subdomains: false
+# Add preload flag appended to the Strict-Transport-Security header
+traefik_headers_sts_preload: true
+# Set the max-age of the Strict-Transport-Security header (63072000 = 2 years)
+traefik_headers_sts_seconds: 63072000
 traefik_https: false
 traefik_https_redirect: false
 traefik_image: traefik
@@ -37,4 +106,4 @@ traefik_port_ssl: 443
 traefik_salt: "{{ ansible_machine_id[0:21] + '.' }}"
 traefik_send_usage: false
 traefik_user: traefik
-traefik_version: "2.10.1"
+traefik_version: "2.10.4"

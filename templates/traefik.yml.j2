@@ -1,3 +1,4 @@
+---
 global:
   checkNewVersion: {{ traefik_check_new_version | quote | lower }}
   sendAnonymousUsage: {{ traefik_send_usage | quote | lower }}
@@ -13,6 +14,7 @@ entryPoints:
           to: websecure
           scheme: https
 {% endif %}
+
   websecure:
     address: :443
     http:
@@ -21,9 +23,6 @@ entryPoints:
         certResolver: letsEncrypt
         domains: {{ traefik_acme_domains | to_json }}
         {% endif %}
-      middlewares:
-        - default-compress@file
-        - default-security@file
 {% endif %}
 
 log:
@@ -36,7 +35,7 @@ accessLog:
 
 {% endif %}
 api:
-  insecure: false
+  insecure: {{ traefik_api_insecure }}
   dashboard: {{ traefik_dashboard | quote | lower }}
 
 providers:

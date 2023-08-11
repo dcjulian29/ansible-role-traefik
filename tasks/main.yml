@@ -62,6 +62,7 @@
     ports:
       - "{{ traefik_port }}:80"
       - "{{ traefik_port_ssl }}:443"
+      - "8080:8080"
     restart_policy: always
     security_opts:
       - no-new-privileges:true
@@ -94,7 +95,18 @@
     owner: "{{ traefik_user }}"
     group: "{{ traefik_group }}"
     mode: "0640"
-  when: traefik_dashboard
+  when: traefik_dashboard and not traefik_api_insecure
+  notify: Restart traefik
+
+- name: Ensure default configuration files are present
+  ansible.builtin.copy:
+    content: "{{ item.conf | to_yaml(indent=2) }}"
+    dest: "{{ traefik_data }}/conf.d/{{ item.name }}.yml"
+    group: "{{ traefik_group }}"
+    mode: "0640"
+    owner: "{{ traefik_user }}"
+  loop: "{{ traefik_default_config }}"
+  when: traefik_default_config | length > 0
   notify: Restart traefik
 
 - name: Ensure custom configuration files are present
