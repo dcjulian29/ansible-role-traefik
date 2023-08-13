@@ -1,6 +1,6 @@
 ---
 - name: Remove traefik
-  ansible.builtin.command: "docker rm {{ traefik_name }}"
+  ansible.builtin.command: "docker rm --force {{ traefik_name }}"
   register: results
   failed_when: >-
     results is failed and
