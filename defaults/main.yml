@@ -84,6 +84,7 @@ traefik_dashboard_pass: admin
 traefik_dashboard_user: admin
 traefik_data: /opt/traefik
 traefik_env: { }
+traefik_fqdn: "{{ ansible_fqdn }}"
 traefik_group: traefik
 traefik_headers_browser_xss_filter: true    # X-XSS-Protection=1; mode=block
 traefik_headers_content_type_nosniff: true    # X-Content-Type-Options=nosniff
