@@ -5,11 +5,10 @@
     state: present
     system: true
 
-- name: Create traefik system user
+- name: Create traefik system user account
   ansible.builtin.user:
     name: "{{ traefik_user }}"
     group: "{{ traefik_group }}"
-    groups: docker
     home: "{{ traefik_data }}"
     create_home: false
     shell: /bin/false
@@ -26,10 +25,10 @@
     access_time: preserve
     modification_time: preserve
   loop:
-    - mode: "0755"
+    - mode: "0750"
       state: directory
       path: "{{ traefik_data }}"
-    - mode: "0755"
+    - mode: "0750"
       state: directory
       path: "{{ traefik_data }}/conf.d"
     - mode: "0600"
@@ -38,11 +37,11 @@
   loop_control:
     label: "{{ item.path }}"
 
-- name: Pull Traefik docker image.
+- name: Pull Traefik docker image
   community.docker.docker_image:
     name: "{{ traefik_image }}"
     source: pull
-    tag: "{{ traefik_version }}"
+    tag: "{{ traefik_imagetag }}"
   notify: Remove traefik
 
 - name: Ensure all handlers run before continuing
@@ -53,7 +52,7 @@
     container_default_behavior: compatibility
     detach: true
     env: "{{ traefik_env }}"
-    image: "{{ traefik_image }}:{{ traefik_version }}"
+    image: "{{ traefik_image }}:{{ traefik_imagetag }}"
     interactive: false
     labels: "{{ traefik_labels | default(omit) }}"
     name: "{{ traefik_name }}"
@@ -95,7 +94,7 @@
     owner: "{{ traefik_user }}"
     group: "{{ traefik_group }}"
     mode: "0640"
-  when: traefik_dashboard and not traefik_api_insecure
+  when: traefik_dashboard and not traefik_dashboard_insecure
   notify: Restart traefik
 
 - name: Ensure default configuration files are present

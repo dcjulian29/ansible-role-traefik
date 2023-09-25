@@ -1,28 +1,27 @@
 ---
 global:
-  checkNewVersion: {{ traefik_check_new_version | quote | lower }}
-  sendAnonymousUsage: {{ traefik_send_usage | quote | lower }}
+  checkNewVersion: {{ traefik_check_new_version | to_json }}
+  sendAnonymousUsage: {{ traefik_send_usage | to_json }}
+
+serversTransport:
+  insecureSkipVerify: {{ traefik_https_skipVerify | to_json }}
 
 entryPoints:
   web:
     address: :80
-{% if traefik_https | bool %}
-{% if traefik_https_redirect | bool %}
+{% if traefik_https %}
+{%   if traefik_https_redirect %}
     http:
       redirections:
         entryPoint:
           to: websecure
           scheme: https
-{% endif %}
+{%   endif %}
 
   websecure:
     address: :443
     http:
-      tls:
-        {% if traefik_acme | bool %}
-        certResolver: letsEncrypt
-        domains: {{ traefik_acme_domains | to_json }}
-        {% endif %}
+      tls: { }
 {% endif %}
 
 log:
@@ -35,13 +34,13 @@ accessLog:
 
 {% endif %}
 api:
-  insecure: {{ traefik_api_insecure }}
-  dashboard: {{ traefik_dashboard | quote | lower }}
+  insecure: {{ traefik_dashboard_insecure | to_json }}
+  dashboard: {{ (traefik_dashboard_insecure or traefik_dashboard) | to_json }}
 
 providers:
   docker:
     endpoint: unix:///var/run/docker.sock
-    exposedByDefault: {{ traefik_docker_default_expose | quote | lower }}
+    exposedByDefault: {{ traefik_docker_default_expose | to_json }}
 
   file:
     directory: /etc/traefik/conf.d
@@ -53,19 +52,27 @@ certificatesResolvers:
     acme:
       email: {{ traefik_acme_email }}
       storage: /etc/traefik/acme.json
-{% if traefik_acme_server | length > 0 %}
+{%   if traefik_acme_server | length > 0 %}
       caServer: {{ traefik_acme_server }}
-{% endif %}
-{% if traefik_acme_challenge == 'dns' %}
+{%   endif %}
+{%   if traefik_acme_challenge == 'dns' %}
       dnsChallenge:
         provider: {{ traefik_acme_dns_provider }}
         resolvers: {{ traefik_acme_dns_resolvers | to_json }}
         delayBeforeCheck: 10
         disablepropagationcheck: {{ traefik_acme_dns_disablepropagationcheck | to_json }}
-{% elif traefik_acme_challenge == 'tls' %}
+{%   elif traefik_acme_challenge == 'tls' %}
       tlsChallenge: {}
-{% elif traefik_acme_challenge == 'http' %}
+{%   elif traefik_acme_challenge == 'http' %}
       httpChallenge:
         entryPoint: web
-{% endif %}
+{%   endif %}
+{%   if traefik_additional_resolvers | length > 0 %}
+{%     for domain in traefik_additional_resolvers %}
+
+  {{ domain.name }}:
+    acme:
+      {{ domain.acme | to_nice_yaml | indent(6) }}
+{%     endfor %}
+{%   endif %}
 {% endif %}

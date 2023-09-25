@@ -7,7 +7,18 @@ http:
             {% else %}"PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
             {% endif %}
       service: api@internal
-      middlewares: {{ traefik_dashboard_middlewares | list }}
+      middlewares:
+        - dashboard-auth-basic@file
+        - dashboard-rate-limit@file
+        - dashboard-secure-headers@file
+      {% if traefik_https %}
+      tls:
+        {% if traefik_acme %}
+        certResolver: letsEncrypt
+        {% endif %}
+        domains:
+          - main: {{ traefik_dashboard_fqdn }}
+      {% endif %}
 
   middlewares:
     dashboard-auth-basic:
@@ -30,9 +41,18 @@ http:
           - PUT
         accessControlMaxAge: 100
         addVaryHeader: true
-        hostsProxyHeaders:
-          - "X-Forwarded-Host"
-        contentSecurityPolicy: "frame-ancestors 'self';"
+        browserXssFilter: {{ traefik_headers_browser_xss_filter | to_json }}
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,noindex"
           server: ""
+        contentSecurityPolicy: "frame-ancestors 'self';"
+        contentTypeNosniff: {{ traefik_headers_content_type_nosniff | to_json }}
+        forceSTSHeader: {{ traefik_headers_sts_force | to_json }}
+        frameDeny: {{ traefik_headers_frame_deny | to_json }}
+        hostsProxyHeaders:
+          - X-Forwarded-Host
+        referrerPolicy: "{{ traefik_headers_referrer_policy }}"
+        sslRedirect: {{ traefik_headers_ssl_redirect | to_json }}
+        stsIncludeSubdomains: {{ traefik_headers_sts_subdomains | to_json }}
+        stsPreload: {{ traefik_headers_sts_preload | to_json }}
+        stsSeconds: {{ traefik_headers_sts_seconds }}
