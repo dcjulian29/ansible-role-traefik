@@ -9,6 +9,12 @@ serversTransport:
 entryPoints:
   web:
     address: :80
+{% if traefik_forwarded_headers_ips | length > 0 %}
+    forwardedHeaders:
+      insecure: {{ traefik_forwarded_headers_insecure | to_json }}
+      trustedIPs: {{ traefik_forwarded_headers_ips | to_json }}
+{% endif %}
+
 {% if traefik_https %}
 {%   if traefik_https_redirect %}
     http:
@@ -20,6 +26,11 @@ entryPoints:
 
   websecure:
     address: :443
+{%   if traefik_forwarded_headers_ips | length > 0 %}
+    forwardedHeaders:
+      insecure: {{ traefik_forwarded_headers_insecure | to_json }}
+      trustedIPs: {{ traefik_forwarded_headers_ips | to_json }}
+{%   endif %}
     http:
       tls: { }
 {% endif %}

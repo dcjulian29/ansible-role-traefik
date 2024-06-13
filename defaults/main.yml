@@ -79,6 +79,8 @@ traefik_dashboard_pass: admin
 traefik_dashboard_user: admin
 traefik_data: /opt/traefik
 traefik_env: { }
+traefik_forwarded_headers_insecure: true
+traefik_forwarded_headers_ips: []
 traefik_group: traefik
 traefik_headers_browser_xss_filter: true    # X-XSS-Protection=1; mode=block
 traefik_headers_content_type_nosniff: true    # X-Content-Type-Options=nosniff
@@ -97,7 +99,7 @@ traefik_https: false
 traefik_https_redirect: false
 traefik_https_skipVerify: false
 traefik_image: traefik
-traefik_imagetag: "2.10.5"
+traefik_imagetag: "3.0"
 traefik_name: traefik
 traefik_docker_default_expose: false
 traefik_docker_network: bridge

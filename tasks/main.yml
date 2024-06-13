@@ -39,6 +39,7 @@
 
 - name: Pull Traefik docker image
   community.docker.docker_image:
+    force_source: true
     name: "{{ traefik_image }}"
     source: pull
     tag: "{{ traefik_imagetag }}"
