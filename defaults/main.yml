@@ -99,7 +99,7 @@ traefik_https: false
 traefik_https_redirect: false
 traefik_https_skipVerify: false
 traefik_image: traefik
-traefik_imagetag: "3.0"
+traefik_imagetag: "3.1"
 traefik_name: traefik
 traefik_docker_default_expose: false
 traefik_docker_network: bridge
