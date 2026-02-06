@@ -110,4 +110,7 @@ traefik_port: 80
 traefik_port_ssl: 443
 traefik_salt: "{{ ansible_machine_id[0:21] + '.' }}"
 traefik_send_usage: false
+traefik_timeout_idle: 60s
+traefik_timeout_read: 60s
+traefik_timeout_write: 60s
 traefik_user: traefik

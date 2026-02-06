@@ -9,7 +9,13 @@ serversTransport:
 entryPoints:
   web:
     address: :80
+    transport:
+      respondingTimeouts:
+        idleTimeout: "{{ traefik_timeout_idle }}"
+        readTimeout: "{{ traefik_timeout_read }}"
+        writeTimeout: "{{ traefik_timeout_write }}"
 {% if traefik_forwarded_headers_ips | length > 0 %}
+
     forwardedHeaders:
       insecure: {{ traefik_forwarded_headers_insecure | to_json }}
       trustedIPs: {{ traefik_forwarded_headers_ips | to_json }}
@@ -26,7 +32,13 @@ entryPoints:
 
   websecure:
     address: :443
+    transport:
+      respondingTimeouts:
+        idleTimeout: "{{ traefik_timeout_idle }}"
+        readTimeout: "{{ traefik_timeout_read }}"
+        writeTimeout: "{{ traefik_timeout_write }}"
 {%   if traefik_forwarded_headers_ips | length > 0 %}
+
     forwardedHeaders:
       insecure: {{ traefik_forwarded_headers_insecure | to_json }}
       trustedIPs: {{ traefik_forwarded_headers_ips | to_json }}
